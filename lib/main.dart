@@ -42,6 +42,7 @@ class _RecipeAppState extends State<RecipeApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false, // ✅ hides DEBUG banner
       title: 'Recipe & Meal Planner',
       theme: ThemeData(primarySwatch: Colors.green),
       home: Scaffold(
@@ -133,7 +134,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   }
 
   void shareRecipe() {
-    Share.share("${widget.recipe.name}\n\nIngredients:\n${widget.recipe.ingredients.join(", ")}\n\nSteps:\n${widget.recipe.steps.join(", ")}");
+    Share.share(
+      "${widget.recipe.name}\n\nIngredients:\n${widget.recipe.ingredients.join(", ")}\n\nSteps:\n${widget.recipe.steps.join(", ")}",
+    );
   }
 
   @override
@@ -190,36 +193,42 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
       context: context,
       builder: (_) => AlertDialog(
         title: Text("Grocery List"),
-        content: Column(mainAxisSize: MainAxisSize.min, children: grocery.map((e) => Text("- $e")).toList()),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: grocery.map((e) => Text("- $e")).toList(),
+        ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      Expanded(
-        child: ListView.builder(
-          itemCount: days.length,
-          itemBuilder: (context, i) {
-            final day = days[i];
-            return ListTile(
-              title: Text("$day: ${plan[day] ?? 'No meal selected'}"),
-              trailing: DropdownButton<String>(
-                value: plan[day],
-                hint: Text("Select"),
-                items: recipes.map((r) => DropdownMenuItem(value: r, child: Text(r))).toList(),
-                onChanged: (v) {
-                  setState(() => plan[day] = v!);
-                  savePlan();
-                },
-              ),
-            );
-          },
+    return Scaffold(
+      body: Column(children: [
+        Expanded(
+          child: ListView.builder(
+            itemCount: days.length,
+            itemBuilder: (context, i) {
+              final day = days[i];
+              return ListTile(
+                title: Text("$day: ${plan[day] ?? 'No meal selected'}"),
+                trailing: DropdownButton<String>(
+                  value: plan[day],
+                  hint: Text("Select"),
+                  items: recipes.map((r) => DropdownMenuItem(value: r, child: Text(r))).toList(),
+                  onChanged: (v) {
+                    setState(() => plan[day] = v!);
+                    savePlan();
+                  },
+                ),
+              );
+            },
+          ),
         ),
-      ),
-      ElevatedButton(onPressed: showGroceries, child: Text("Generate Grocery List"))
-    ]);
+        ElevatedButton(onPressed: showGroceries, child: Text("Generate Grocery List")),
+      ]),
+    );
   }
 }
 
